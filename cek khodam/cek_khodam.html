@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cek Khodam</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            color: #333;
+            overflow: hidden;
+            background: #000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 0 20px;
+            position: relative;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+            background-color: rgba(240, 240, 240, 0.9); /* Background with slight transparency */
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+        }
+        .cek-button {
+            background-color: #007bff;
+        }
+        .reset-button {
+            background-color: #dc3545;
+        }
+        .back-button {
+            background-color: #6c757d;
+            font-size: 14px;
+            padding: 8px 16px;
+            position: absolute;
+            top: 10px;
+            left: 10px;
+        }
+        .result {
+            margin-top: 10px;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        input[type="text"] {
+            width: calc(100% - 22px);
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: #f9f9f9;
+            color: #333;
+        }
+        .background-image {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url('kadita_ml_image_url') no-repeat center center fixed;
+            background-size: cover;
+            z-index: -1;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="background-image"></div>
+    <button class="back-button" id="backButton">Kembali</button>
+    <div class="container">
+        <div>
+            <h1>Khodam Checker</h1>
+            <input type="text" id="nameInput" placeholder="Masukkan nama Anda">
+            <button class="cek-button" id="cekButton">Cek</button>
+            <button class="reset-button" id="resetButton">Reset</button>
+            <div class="result" id="result"></div>
+        </div>
+    </div>
+    <script>
+        const cekButton = document.getElementById('cekButton');
+        const resetButton = document.getElementById('resetButton');
+        const backButton = document.getElementById('backButton');
+        const result = document.getElementById('result');
+        const nameInput = document.getElementById('nameInput');
+
+        const khodams = [
+            "Kucing Terbang", "Charger iPhone", "Peri Hitam", "Kadita Tidur", "Robot Kecil", "Lampu Neon", "Mobil Mini", "Kaktus Berbicara", "Kursi Putar", "Topi Ajaib",
+            "Gelas Ajaib", "Kipas Angin", "Bantal Lunak", "Roti Terbang", "Boneka Kecil", "Sapu Terbang", "Bola Berkilau", "Kamera Tua", "Jam Digital", "Karpet Ajaib",
+            "Sandal Kecil", "Talenan Canggih", "Komputer Mini", "Jam Dinding", "Lampu Hias", "Kertas Terbang", "Kardus Kecil", "Piring Ajaib", "Kotak Musik",
+            "Kunci Gitar", "Cermin Ajaib", "Buku Ajaib", "Hiasan Dinding", "Kue Kecil", "Tali Kecil", "Kursi Santai", "Lampu Kerja", "Perhiasan Emas", "Kado Surprise",
+            "Pena Berbicara", "Kotak Hadiah", "Buku Catatan", "Penghapus Magis", "Mangkuk Terbang", "Bola Basketball", "Bantal Bunga", "Kabel USB", "Kipas Mini", "Kalender Kecil",
+            "Buku Komik", "Kardus Ajaib", "Gelas Kopi", "Tas Belanja", "Gelas Terbang", "Botol Air", "Kamera Polaroid", "Mouse Gaming", "Papan Tulis", "Lampu Senter",
+            "Piano Mini", "Jam Dinding Digital", "Buku Ensiklopedia", "Kunci Sukses", "Buku Cerita", "Kotak Ajaib", "Kaca Pembesar", "Peri Ajaib", "Bola Tenis", "Cincin Emas",
+            "Pipa Kecil", "Gelang Ajaib", "Kunci Mobil", "Gitar Kecil", "Mug Keren", "Roti Ajaib", "Papan Skate", "Gitar Terbang", "Kursi Lipat", "Bola Berenang",
+            "Kamera Digital", "Ranjang Mini", "Bola Pingpong", "Kursi Angin", "Buku Musik", "Koper Mini", "Lampu LED", "Bantal Tangan", "Papan Kanvas", "Tas Samping",
+            "Peri Hitam", "Kadita Tidur", "Roti Ajaib", "Bola Berenang", "Cincin Emas", "Pipa Kecil", "Gelang Ajaib", "Kunci Mobil", "Gitar Kecil", "Mug Keren",
+            "Papan Skate", "Gitar Terbang", "Kursi Lipat", "Bola Berenang", "Kamera Digital", "Ranjang Mini", "Bola Pingpong", "Kursi Angin", "Buku Musik", "Koper Mini",
+            "Kadita Tidur", "Peri Hitam", "Mug Keren", "Gitar Terbang", "Kursi Lipat", "Bola Berenang", "Kamera Digital", "Ranjang Mini", "Bola Pingpong", "Kursi Angin"
+        ];
+
+        let canCheck = true;
+
+        function getRandomKhodam() {
+            if (nameInput.value.trim().toLowerCase() === 'jenna') {
+                return "Kelap Kelip";
+            } else {
+                const randomIndex = Math.floor(Math.random() * khodams.length);
+                return khodams[randomIndex];
+            }
+        }
+
+        function cekKhodam() {
+            if (canCheck) {
+                const name = nameInput.value.trim();
+                if (name) {
+                    result.textContent = getRandomKhodam();
+                    canCheck = false;
+                } else {
+                    result.textContent = "Masukkan nama terlebih dahulu.";
+                }
+            }
+        }
+
+        cekButton.addEventListener('click', cekKhodam);
+
+        resetButton.addEventListener('click', () => {
+            nameInput.value = '';
+            result.textContent = '';
+            canCheck = true;
+        });
+
+        backButton.addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter') {
+                cekKhodam();
+            } else if (event.key === 'Backspace') {
+                resetButton.click();
+            }
+        });
+    </script>
+</body>
+</html>
